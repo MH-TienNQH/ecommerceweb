@@ -35,8 +35,8 @@ model User {
 
 model Address {
   id            Int             @id @unique @default(autoincrement())
-  house_numer   String
-  address_line  String
+  houseNumber   String
+  addressLine   String
   city          String
   country       String
   user          User            @relation(fields: [userId], references: [id])
