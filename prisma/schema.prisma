@@ -13,14 +13,160 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  username  String   @unique
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum Role {
+  Admin
+  User
+}
 
-  @@map("users")
+model User {
+  id            Int             @id @default(autoincrement())
+  name          String
+  username      String          @unique
+  email         String          @unique
+  password      String
+  role          Role            @default(User)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  address       Address[]
+  Cart          Cart[]
+  Review        Review[]
+  ShoppingOrder ShoppingOrder[]
+}
+
+model Address {
+  id            Int             @id @unique @default(autoincrement())
+  house_numer   String
+  address_line  String
+  city          String
+  country       String
+  user          User            @relation(fields: [userId], references: [id])
+  userId        Int
+  ShoppingOrder ShoppingOrder[]
+}
+
+model Product {
+  id          Int               @id @unique @default(autoincrement())
+  name        String
+  desc        String
+  image       String
+  categories  ProductCategory[]
+  ProductItem ProductItem[]
+}
+
+model Category {
+  id          Int               @id @unique @default(autoincrement())
+  name        String
+  products    ProductCategory[]
+  subCategory SubCategory[]
+}
+
+model ProductCategory {
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  @@id([productId, categoryId])
+}
+
+model SubCategory {
+  id                Int                 @id @unique @default(autoincrement())
+  name              String
+  category          Category            @relation(fields: [categoryId], references: [id])
+  categoryId        Int
+  subCategoryOption SubCategoryOption[]
+}
+
+model SubCategoryOption {
+  id            Int             @id @unique @default(autoincrement())
+  name          String
+  subCategory   SubCategory     @relation(fields: [subCategoryId], references: [id])
+  subCategoryId Int
+  productConfig ProductConfig[]
+}
+
+model ProductItem {
+  id            Int             @id @unique @default(autoincrement())
+  image         String
+  price         Int
+  SKU           String
+  inStock       Int
+  product       Product         @relation(fields: [productId], references: [id])
+  productId     Int
+  productConfig ProductConfig[]
+  cartItem      CartItem[]
+  orderedItem   orderedItem[]
+}
+
+model ProductConfig {
+  productItem         ProductItem       @relation(fields: [productItemId], references: [id])
+  productItemId       Int
+  subCategoryOption   SubCategoryOption @relation(fields: [subCategoryOptionId], references: [id])
+  subCategoryOptionId Int
+
+  @@id([productItemId, subCategoryOptionId])
+}
+
+model Cart {
+  id       Int        @id @unique @default(autoincrement())
+  user     User       @relation(fields: [userId], references: [id])
+  userId   Int
+  cartItem CartItem[]
+}
+
+model CartItem {
+  id            Int         @id @unique @default(autoincrement())
+  cart          Cart        @relation(fields: [cartId], references: [id])
+  cartId        Int
+  productItem   ProductItem @relation(fields: [productItemId], references: [id])
+  productItemId Int
+  quantity      Int
+  price         Int
+}
+
+model Review {
+  id        Int         @id @unique @default(autoincrement())
+  user      User        @relation(fields: [userId], references: [id])
+  userId    Int
+  rating    Int
+  product   orderedItem @relation(fields: [productId], references: [id])
+  productId Int
+  comment   String
+}
+
+model ShoppingOrder {
+  id              Int           @id @unique @default(autoincrement())
+  user            User          @relation(fields: [userId], references: [id])
+  userId          Int
+  orderDate       DateTime      @default(now())
+  shippingAddress Address       @relation(fields: [addressId], references: [id])
+  addressId       Int
+  ShipMethod      ShipMethod[]
+  ShipStatus      ShipStatus[]
+  orderedItem     orderedItem[]
+  total           Int
+}
+
+model ShipMethod {
+  id          Int           @id @unique @default(autoincrement())
+  method      String
+  price       Int
+  shopOrder   ShoppingOrder @relation(fields: [shopOrderId], references: [id])
+  shopOrderId Int
+}
+
+model ShipStatus {
+  id          Int           @id @unique @default(autoincrement())
+  status      String
+  shopOrder   ShoppingOrder @relation(fields: [shopOrderId], references: [id])
+  shopOrderId Int
+}
+
+model orderedItem {
+  id            Int           @id @unique @default(autoincrement())
+  productItem   ProductItem   @relation(fields: [productItemId], references: [id])
+  productItemId Int
+  order         ShoppingOrder @relation(fields: [orderId], references: [id])
+  orderId       Int
+  Review        Review[]
 }
