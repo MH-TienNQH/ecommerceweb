@@ -5,16 +5,18 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index"
+    "dev": "nodemon ./src/index"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/client": "^5.16.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mysql2": "^3.10.2",
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "prisma": "^5.16.2"
   }
 }
