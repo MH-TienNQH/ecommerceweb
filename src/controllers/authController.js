@@ -17,7 +17,7 @@ export const login = async (req, res) => {
             username }
     })
     if(!user){
-        throw Error ("username does not exist")
+        res.status(401).send("username does not exist")
     }
     if(!compareSync(password, user.password)){
         res.status(401).send("incorrect pw")
