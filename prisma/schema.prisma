@@ -28,9 +28,9 @@ model User {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   address       Address[]
-  Cart          Cart[]
-  Review        Review[]
-  ShoppingOrder ShoppingOrder[]
+  cart          Cart[]
+  review        Review[]
+  shoppingOrder ShoppingOrder[]
 }
 
 model Address {
@@ -49,15 +49,17 @@ model Product {
   name        String
   desc        String
   image       String
+  price       Int
   categories  ProductCategory[]
-  ProductItem ProductItem[]
+  productItem ProductItem[]
+  size        Size[]
+  color       Color[]
 }
 
 model Category {
-  id          Int               @id @unique @default(autoincrement())
-  name        String
-  products    ProductCategory[]
-  subCategory SubCategory[]
+  id           Int               @id @unique @default(autoincrement())
+  categoryName String
+  products     ProductCategory[]
 }
 
 model ProductCategory {
@@ -69,42 +71,32 @@ model ProductCategory {
   @@id([productId, categoryId])
 }
 
-model SubCategory {
-  id                Int                 @id @unique @default(autoincrement())
-  name              String
-  category          Category            @relation(fields: [categoryId], references: [id])
-  categoryId        Int
-  subCategoryOption SubCategoryOption[]
+model Size {
+  id        Int     @id @unique @default(autoincrement())
+  sizeName  String
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
 }
 
-model SubCategoryOption {
-  id            Int             @id @unique @default(autoincrement())
-  name          String
-  subCategory   SubCategory     @relation(fields: [subCategoryId], references: [id])
-  subCategoryId Int
-  productConfig ProductConfig[]
+model Color {
+  id        Int     @id @unique @default(autoincrement())
+  colorName String
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
 }
 
 model ProductItem {
-  id            Int             @id @unique @default(autoincrement())
-  image         String
-  price         Int
-  SKU           String
-  inStock       Int
-  product       Product         @relation(fields: [productId], references: [id])
-  productId     Int
-  productConfig ProductConfig[]
-  cartItem      CartItem[]
-  orderedItem   orderedItem[]
-}
-
-model ProductConfig {
-  productItem         ProductItem       @relation(fields: [productItemId], references: [id])
-  productItemId       Int
-  subCategoryOption   SubCategoryOption @relation(fields: [subCategoryOptionId], references: [id])
-  subCategoryOptionId Int
-
-  @@id([productItemId, subCategoryOptionId])
+  id          Int           @id @unique @default(autoincrement())
+  image       String
+  price       Int
+  SKU         String
+  inStock     Int
+  size        String
+  color       String
+  product     Product       @relation(fields: [productId], references: [id])
+  productId   Int
+  cartItem    CartItem[]
+  orderedItem orderedItem[]
 }
 
 model Cart {
@@ -148,18 +140,18 @@ model ShoppingOrder {
 }
 
 model ShipMethod {
-  id          Int           @id @unique @default(autoincrement())
-  method      String
-  price       Int
-  shopOrder   ShoppingOrder @relation(fields: [shopOrderId], references: [id])
-  shopOrderId Int
+  id             Int           @id @unique @default(autoincrement())
+  shipMethodName String
+  price          Int
+  shopOrder      ShoppingOrder @relation(fields: [shopOrderId], references: [id])
+  shopOrderId    Int
 }
 
 model ShipStatus {
-  id          Int           @id @unique @default(autoincrement())
-  status      String
-  shopOrder   ShoppingOrder @relation(fields: [shopOrderId], references: [id])
-  shopOrderId Int
+  id             Int           @id @unique @default(autoincrement())
+  shipStatusName String
+  shopOrder      ShoppingOrder @relation(fields: [shopOrderId], references: [id])
+  shopOrderId    Int
 }
 
 model orderedItem {
