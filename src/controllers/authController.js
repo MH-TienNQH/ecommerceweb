@@ -1,13 +1,12 @@
-import { Role } from "@prisma/client";
+
 import { prismaClient } from "../routes/index.js"
 import { hashSync ,  compareSync} from "bcrypt";
 import { config } from "dotenv";
-import pkg from 'jsonwebtoken';
-const { sign } = pkg;
+import jwt from "jsonwebtoken"
 
 config();
 
-const JWT_KEY = process.env.JWT_KEY.toString()
+const JWT_KEY = process.env.JWT_KEY
 
 export const login = async (req, res) => {
     const {username, password} = req.body;
@@ -23,8 +22,11 @@ export const login = async (req, res) => {
         res.status(401).send("incorrect pw")
         return;
     }
-    const token = sign(user, JWT_KEY, {expiresIn: "6h"})
-    res.status(200).json(user)
+    const token = jwt.sign({
+        id: user.id,
+        role: user.role
+    }, JWT_KEY, {expiresIn: "6h"})
+    res.status(200).json({user, token})
 }
 
 export const signup = async (req, res, next) => {
@@ -45,14 +47,12 @@ export const signup = async (req, res, next) => {
             email,
             password: hashSync(password, 10),
             address:{
-                create:[
-                    {
+                    create:{
                         houseNumber,
                         addressLine,
                         city,
-                        country
+                        country,
                     }
-                ]
             }
         }
     })
